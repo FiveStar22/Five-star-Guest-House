@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Guest House - Booking</title>
 <link rel="stylesheet" href="styles.css" />
-
-
 </head>
 <div style="text-align: center;">
 <h1>Book Your Stay</h1>
@@ -45,6 +43,9 @@
 <label for="checkOut">Check-Out Date:</label>
 <input type="date" id="checkOut" name="checkOut" required />
 
+<!-- New section for total amount -->
+<p>Total Amount: <span id="totalAmount">0</span></p>
+
 <label for="guests">Number of Guests:</label>
 <input type="number" id="guests" name="guests" min="1" max="10" required />
 
@@ -53,42 +54,71 @@
 
 <div id="confirmation" style="display:none; margin-top:20px; background:#e0ffe0; padding:15px; border-radius:8px;">
 <h3>Thank you for your booking!</h3>
-<p>Contact Phone number to confirm resevation and provide proof of payment</p>
+<p>Contact Phone number to confirm reservation and provide proof of payment</p>
 </div>
 </section>
 
 <script>
+// Function to calculate nights and total
+function calculateTotal() {
+  const checkIn = document.getElementById('checkIn').value;
+  const checkOut = document.getElementById('checkOut').value;
+  const totalSpan = document.getElementById('totalAmount');
+
+  if (checkIn && checkOut) {
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = new Date(checkOut);
+
+    const diffTime = checkOutDate - checkInDate;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays > 0) {
+      const ratePerNight = 2200; // Updated rate
+      const totalCost = diffDays * ratePerNight;
+      totalSpan.textContent = totalCost;
+    } else {
+      totalSpan.textContent = '0';
+    }
+  }
+}
+
+// Add event listeners for date inputs
+document.getElementById('checkIn').addEventListener('change', calculateTotal);
+document.getElementById('checkOut').addEventListener('change', calculateTotal);
+
 // Handle form submission
 document.getElementById('bookingForm').addEventListener('submit', function(e) {
-e.preventDefault();
-// Here you would typically send form data to the server
-// For demonstration, we'll show a confirmation message
-document.getElementById('bookingForm').style.display = 'none';
-document.getElementById('confirmation').style.display = 'block';
+  e.preventDefault();
 
-// Optionally, send data to backend via AJAX (fetch)
-/*
-fetch('/api/bookings', {
-method: 'POST',
-headers: {'Content-Type': 'application/json'},
-body: JSON.stringify({
-name: document.getElementById('name').value,
-email: document.getElementById('email').value,
-phone: document.getElementById('phone').value,
-roomType: document.getElementById('roomType').value,
-checkIn: document.getElementById('checkIn').value,
-checkOut: document.getElementById('checkOut').value,
-guests: document.getElementById('guests').value
-})
-}).then(response => response.json())
-.then(data => {
-// Show confirmation
-});
-*/
+  // Gather customer info
+  const name = document.getElementById('name').value;
+  const email = document.getElementById('email').value;
+  const phone = document.getElementById('phone').value;
+  const roomType = document.getElementById('roomType').value;
+  const checkIn = document.getElementById('checkIn').value;
+  const checkOut = document.getElementById('checkOut').value;
+  const guests = document.getElementById('guests').value;
+  const totalAmount = document.getElementById('totalAmount').textContent;
+
+  // Build message for WhatsApp
+  const message = `New Booking:\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nRoom: ${roomType}\nCheck-in: ${checkIn}\nCheck-out: ${checkOut}\nGuests: ${guests}\nTotal: ${totalAmount}`;
+
+  // WhatsApp number (must include country code, e.g., 254 for Kenya)
+  const whatsappNumber = '0762688807'; // Your number
+  const whatsappURL = `https://wa.me/27762688807?text=${encodeURIComponent(message)}`;
+
+  // Open WhatsApp chat
+  window.open(whatsappURL, '_blank');
+
+  // Show confirmation message
+  document.getElementById('bookingForm').style.display = 'none';
+  document.getElementById('confirmation').style.display = 'block';
+
+  // Optionally, you can add backend submission here
 });
 </script>
 <footer>
-<p>&copy; 2022 - 2025 Greenpoint Holiday Home. All rights reserved.</p>
+<p>&copy; 2022 - 2026 Five Star Guest House. All rights reserved.</p>
 </footer>
 </body>
 </html>
